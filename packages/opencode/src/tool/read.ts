@@ -129,8 +129,13 @@ export const ReadTool = Tool.define("read", {
     LSP.touchFile(filepath, false)
     FileTime.read(ctx.sessionID, filepath)
 
+    // Format title with clickable terminal link
+    const displayTitle = offset !== undefined && offset > 0
+      ? `${title}, line ${offset + 1}-${offset + content.length}`
+      : title
+
     return {
-      title,
+      title: displayTitle,
       output,
       metadata: {
         preview,
