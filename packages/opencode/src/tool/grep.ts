@@ -96,7 +96,7 @@ export const GrepTool = Tool.define("grep", {
         currentFile = match.path
         outputLines.push(`${match.path}:`)
       }
-      outputLines.push(`  Line ${match.lineNum}: ${match.lineText}`)
+      outputLines.push(`  ${match.path}:${match.lineNum}: ${match.lineText}`)
     }
 
     if (truncated) {
