@@ -56,6 +56,9 @@ import type {
   SessionDiffData,
   SessionDiffResponses,
   SessionDiffErrors,
+  SessionClearData,
+  SessionClearResponses,
+  SessionClearErrors,
   SessionSummarizeData,
   SessionSummarizeResponses,
   SessionSummarizeErrors,
@@ -410,6 +413,16 @@ class Session extends _HeyApiClient {
   public diff<ThrowOnError extends boolean = false>(options: Options<SessionDiffData, ThrowOnError>) {
     return (options.client ?? this._client).get<SessionDiffResponses, SessionDiffErrors, ThrowOnError>({
       url: "/session/{id}/diff",
+      ...options,
+    })
+  }
+
+  /**
+   * Clear session messages
+   */
+  public clear<ThrowOnError extends boolean = false>(options: Options<SessionClearData, ThrowOnError>) {
+    return (options.client ?? this._client).post<SessionClearResponses, SessionClearErrors, ThrowOnError>({
+      url: "/session/{id}/clear",
       ...options,
     })
   }

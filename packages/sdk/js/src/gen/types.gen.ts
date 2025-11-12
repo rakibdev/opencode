@@ -1112,6 +1112,7 @@ export type EventTuiCommandExecute = {
       | (
           | "session.list"
           | "session.new"
+          | "session.clear"
           | "session.share"
           | "session.interrupt"
           | "session.compact"
@@ -1934,6 +1935,38 @@ export type SessionDiffResponses = {
 }
 
 export type SessionDiffResponse = SessionDiffResponses[keyof SessionDiffResponses]
+
+export type SessionClearData = {
+  body?: never
+  path: {
+    /**
+     * Session ID
+     */
+    id: string
+  }
+  query?: {
+    directory?: string
+  }
+  url: "/session/{id}/clear"
+}
+
+export type SessionClearErrors = {
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type SessionClearError = SessionClearErrors[keyof SessionClearErrors]
+
+export type SessionClearResponses = {
+  /**
+   * Session cleared
+   */
+  200: boolean
+}
+
+export type SessionClearResponse = SessionClearResponses[keyof SessionClearResponses]
 
 export type SessionSummarizeData = {
   body?: {
