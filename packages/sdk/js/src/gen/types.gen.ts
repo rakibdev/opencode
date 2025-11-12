@@ -303,6 +303,10 @@ export type Config = {
     scroll_speed?: number
   }
   /**
+   * View to show on startup: 'last_chat' opens most recent session, 'new_chat' shows home screen
+   */
+  startup_view?: "last_chat" | "new_chat"
+  /**
    * Command configuration, see https://opencode.ai/docs/commands
    */
   command?: {

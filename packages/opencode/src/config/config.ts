@@ -451,6 +451,10 @@ export namespace Config {
       theme: z.string().optional().describe("Theme name to use for the interface"),
       keybinds: Keybinds.optional().describe("Custom keybind configurations"),
       tui: TUI.optional().describe("TUI specific settings"),
+      startup_view: z
+        .enum(["last_chat", "new_chat"])
+        .optional()
+        .describe("View to show on startup: 'last_chat' opens most recent session, 'new_chat' shows home screen"),
       command: z
         .record(z.string(), Command)
         .optional()

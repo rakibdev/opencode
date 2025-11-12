@@ -187,7 +187,8 @@ function App() {
 
   createEffect(() => {
     if (sync.status !== "complete") return
-    if (args.continue) {
+    const startupView = sync.data.config.startup_view || "new_chat"
+    if (args.continue || (startupView === "last_chat" && !args.sessionID)) {
       const match = sync.data.session.at(0)?.id
       if (match) {
         route.navigate({
