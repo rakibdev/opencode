@@ -170,6 +170,31 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         setStore("themes", "system", generateSystem(colors, store.mode))
       })
 
+    // Load custom themes from ~/.config/opencode/themes
+    const loadCustomThemes = async () => {
+      try {
+        const os = await import("os")
+        const path = await import("path")
+        const themesDir = path.join(os.homedir(), ".config", "opencode", "themes")
+
+        const glob = new Bun.Glob("*.json")
+        for await (const file of glob.scan({ cwd: themesDir, absolute: true })) {
+          try {
+            const themeFile = Bun.file(file)
+            const themeData = await themeFile.json() as ThemeJson
+            const themeName = path.basename(file, ".json")
+            setStore("themes", themeName, themeData)
+          } catch (err) {
+            console.error(`Failed to load custom theme ${file}:`, err)
+          }
+        }
+      } catch (err) {
+        // Directory doesn't exist or other error, silently ignore
+      }
+    }
+
+    loadCustomThemes()
+
     const values = createMemo(() => {
       return resolveTheme(store.themes[store.active] ?? store.themes.opencode, store.mode)
     })
