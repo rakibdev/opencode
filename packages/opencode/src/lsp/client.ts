@@ -192,7 +192,7 @@ export namespace LSPClient {
               }
             })
           }),
-          3000,
+          30_000,
         )
           .catch(() => {})
           .finally(() => {
