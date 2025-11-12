@@ -466,6 +466,11 @@ export namespace ACP {
           name: "compact",
           description: "compact the session",
         })
+      if (!names.has("clear"))
+        availableCommands.push({
+          name: "clear",
+          description: "clear chat",
+        })
 
       const availableModes = agents
         .filter((agent) => agent.mode !== "subagent")
@@ -694,6 +699,12 @@ export namespace ACP {
             query: {
               directory,
             },
+          })
+          break
+        case "clear":
+          await this.config.sdk.session.clear({
+            path: { id: sessionID },
+            throwOnError: true,
           })
           break
       }
