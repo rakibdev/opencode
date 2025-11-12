@@ -266,6 +266,9 @@ export namespace Session {
   export async function clearMessages(id: string) {
     const project = Instance.project
     const msgs = await messages({ sessionID: id })
+
+    const lastAssistant = msgs.reverse().find((msg) => msg.info.role === "assistant")
+
     for (const msg of msgs) {
       await Storage.remove(["message", id, msg.info.id])
       for (const part of msg.parts) {
@@ -273,6 +276,74 @@ export namespace Session {
       }
       await Bus.publish(MessageV2.Event.Removed, { sessionID: id, messageID: msg.info.id })
     }
+
+    // Leave user+assistant pair messages to avoid "new session" charge.
+    // Must be a pair. Single user message or empty history doesn't work.
+    // Inspired by `/compact` which bypass charge.
+    if (lastAssistant?.info.role === "assistant") {
+      const userMsgID = Identifier.ascending("message")
+      await updateMessage({
+        id: userMsgID,
+        role: "user",
+        sessionID: id,
+        time: {
+          created: Date.now(),
+        },
+      })
+
+      await updatePart({
+        type: "text",
+        sessionID: id,
+        messageID: userMsgID,
+        id: Identifier.ascending("part"),
+        text: "hi",
+        synthetic: true, // Hidden from UI
+        time: {
+          start: Date.now(),
+          end: Date.now(),
+        },
+      })
+
+      const assistantMsg = await updateMessage({
+        id: Identifier.ascending("message"),
+        role: "assistant",
+        parentID: userMsgID,
+        sessionID: id,
+        mode: lastAssistant.info.mode,
+        path: {
+          cwd: Instance.directory,
+          root: Instance.worktree,
+        },
+        summary: true,
+        cost: 0,
+        tokens: {
+          output: 1,
+          input: 1,
+          reasoning: 0,
+          cache: { read: 0, write: 0 },
+        },
+        modelID: lastAssistant.info.modelID,
+        providerID: lastAssistant.info.providerID,
+        time: {
+          created: Date.now(),
+          completed: Date.now(),
+        },
+      })
+
+      await updatePart({
+        type: "text",
+        sessionID: id,
+        messageID: assistantMsg.id,
+        id: Identifier.ascending("part"),
+        text: "hi",
+        synthetic: true,
+        time: {
+          start: Date.now(),
+          end: Date.now(),
+        },
+      })
+    }
+
     const result = await Storage.update<Info>(["session", project.id, id], (draft) => {
       draft.time.updated = Date.now()
     })
