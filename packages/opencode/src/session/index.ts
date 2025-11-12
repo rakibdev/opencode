@@ -267,9 +267,12 @@ export namespace Session {
     const project = Instance.project
     const msgs = await messages({ sessionID: id })
     for (const msg of msgs) {
+      await Storage.remove(["message", id, msg.info.id])
+      for (const part of msg.parts) {
+        await Storage.remove(["part", msg.info.id, part.id])
+      }
       await Bus.publish(MessageV2.Event.Removed, { sessionID: id, messageID: msg.info.id })
     }
-    await Storage.remove(["session_message", id])
     const result = await Storage.update<Info>(["session", project.id, id], (draft) => {
       draft.time.updated = Date.now()
     })
