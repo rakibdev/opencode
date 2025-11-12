@@ -263,6 +263,22 @@ export namespace Session {
     return result
   }
 
+  export async function clearMessages(id: string) {
+    const project = Instance.project
+    const msgs = await messages({ sessionID: id })
+    for (const msg of msgs) {
+      await Bus.publish(MessageV2.Event.Removed, { sessionID: id, messageID: msg.info.id })
+    }
+    await Storage.remove(["session_message", id])
+    const result = await Storage.update<Info>(["session", project.id, id], (draft) => {
+      draft.time.updated = Date.now()
+    })
+    Bus.publish(Event.Updated, {
+      info: result,
+    })
+    return result
+  }
+
   export const diff = fn(Identifier.schema("session"), async (sessionID) => {
     const diffs = await Storage.read<Snapshot.FileDiff[]>(["session_diff", sessionID])
     return diffs ?? []

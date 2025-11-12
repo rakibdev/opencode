@@ -688,6 +688,35 @@ export namespace Server {
         },
       )
       .post(
+        "/session/:id/clear",
+        describeRoute({
+          description: "Clear session messages",
+          operationId: "session.clear",
+          responses: {
+            200: {
+              description: "Session cleared",
+              content: {
+                "application/json": {
+                  schema: resolver(z.boolean()),
+                },
+              },
+            },
+            ...errors(404),
+          },
+        }),
+        validator(
+          "param",
+          z.object({
+            id: z.string().meta({ description: "Session ID" }),
+          }),
+        ),
+        async (c) => {
+          const id = c.req.valid("param").id
+          await Session.clearMessages(id)
+          return c.json(true)
+        },
+      )
+      .post(
         "/session/:id/summarize",
         describeRoute({
           description: "Summarize the session",

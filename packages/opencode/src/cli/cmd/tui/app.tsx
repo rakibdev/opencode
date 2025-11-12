@@ -152,7 +152,7 @@ function App() {
   const local = useLocal()
   const kv = useKV()
   const command = useCommandDialog()
-  const { event } = useSDK()
+  const { event, client } = useSDK()
   const toast = useToast()
   const { theme, mode, setMode } = useTheme()
   const sync = useSync()
@@ -216,6 +216,29 @@ function App() {
       onSelect: () => {
         route.navigate({
           type: "home",
+        })
+        dialog.clear()
+      },
+    },
+    {
+      title: "Clear chat",
+      value: "session.clear",
+      category: "Session",
+      onSelect: async () => {
+        if (route.data.type !== "session") {
+          toast.show({
+            variant: "warning",
+            message: "No active session to clear",
+          })
+          return
+        }
+        const sessionID = route.data.sessionID
+        await client.session.clear({
+          path: { id: sessionID },
+        })
+        toast.show({
+          variant: "info",
+          message: "Chat cleared",
         })
         dialog.clear()
       },

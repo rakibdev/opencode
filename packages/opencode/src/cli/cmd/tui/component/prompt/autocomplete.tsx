@@ -258,8 +258,12 @@ export function Autocomplete(props: {
 
     results.push(
       {
+        display: "/clear",
+        description: "clear chat",
+        onSelect: () => command.trigger("session.clear"),
+      },
+      {
         display: "/new",
-        aliases: ["/clear"],
         description: "create a new session",
         onSelect: () => command.trigger("session.new"),
       },
