@@ -79,25 +79,6 @@ export const BashTool = Tool.define("bash", {
         command.push(child.text)
       }
 
-      // not an exhaustive list, but covers most common cases
-      if (["cd", "rm", "cp", "mv", "mkdir", "touch", "chmod", "chown"].includes(command[0])) {
-        for (const arg of command.slice(1)) {
-          if (arg.startsWith("-") || (command[0] === "chmod" && arg.startsWith("+"))) continue
-          const resolved = await $`realpath ${arg}`
-            .quiet()
-            .nothrow()
-            .text()
-            .then((x) => x.trim())
-          log.info("resolved path", { arg, resolved })
-          if (resolved && !Filesystem.contains(Instance.directory, resolved)) {
-            throw new Error(
-              `This command references paths outside of ${Instance.directory} so it is not allowed to be executed.`,
-            )
-          }
-        }
-      }
-
-      // always allow cd if it passes above check
       if (command[0] !== "cd") {
         const action = Wildcard.allStructured({ head: command[0], tail: command.slice(1) }, permissions)
         if (action === "deny") {
